@@ -4,47 +4,61 @@ from typing import List, Tuple
 
 def spell_combiner(
     spell1: Callable[[str, int], str],
-    spell2: Callable[[str, int], str]
+    spell2: Callable[[str, int], str],
 ) -> Callable[[str, int], Tuple[str, str]]:
-
-    def combined(target: str, power: int) -> Tuple[str, str]:
-        return (spell1(target, power), spell2(target, power))
+    def combined(
+        target: str,
+        power: int,
+    ) -> Tuple[str, str]:
+        return (
+            spell1(target, power),
+            spell2(target, power),
+        )
 
     return combined
 
 
 def power_amplifier(
     base_spell: Callable[[str, int], str],
-    multiplier: int
+    multiplier: int,
 ) -> Callable[[str, int], str]:
-
-    def power_amplified(target: str, power: int) -> str:
+    def amplified(
+        target: str,
+        power: int,
+    ) -> str:
         return base_spell(
             target,
-            power * multiplier
+            power * multiplier,
         )
 
-    return power_amplified
+    return amplified
 
 
 def conditional_caster(
     condition: Callable[[str, int], bool],
-    spell: Callable[[str, int], str]
+    spell: Callable[[str, int], str],
 ) -> Callable[[str, int], str]:
-
-    def conditional_spell(target: str, power: int) -> str:
+    def conditional(
+        target: str,
+        power: int,
+    ) -> str:
         if condition(target, power):
             return spell(target, power)
+
         return "Spell fizzled"
 
-    return conditional_spell
+    return conditional
 
 
 def spell_sequence(
-    spells: List[Callable[[str, int], str]]
+    spells: List[
+        Callable[[str, int], str]
+    ],
 ) -> Callable[[str, int], List[str]]:
-
-    def sequence(target: str, power: int) -> List[str]:
+    def sequence(
+        target: str,
+        power: int,
+    ) -> List[str]:
         return [
             spell(target, power)
             for spell in spells

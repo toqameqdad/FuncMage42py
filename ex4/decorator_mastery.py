@@ -11,14 +11,22 @@ def spell_timer(
         *args: Any,
         **kwargs: Any,
     ) -> Any:
-        print(f"Casting {func.__name__}...")
+        print(
+            f"Casting "
+            f"{func.__name__}..."
+        )
+
         start = time.time()
-        result = func(*args, **kwargs)
+        result = func(
+            *args,
+            **kwargs,
+        )
         end = time.time()
 
         print(
             f"Spell completed in "
-            f"{end - start:.3f} seconds"
+            f"{end - start:.3f} "
+            f"seconds"
         )
 
         return result
@@ -82,7 +90,10 @@ def retry_spell(
                         **kwargs,
                     )
                 except Exception:
-                    if attempt < max_attempts:
+                    if (
+                        attempt
+                        < max_attempts
+                    ):
                         print(
                             "Spell failed, "
                             "retrying... "
@@ -93,7 +104,7 @@ def retry_spell(
                     else:
                         return (
                             "Spell casting "
-                            f"failed after "
+                            "failed after "
                             f"{max_attempts} "
                             "attempts"
                         )

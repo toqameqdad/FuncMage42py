@@ -12,10 +12,14 @@ def mage_counter() -> Callable[[], int]:
     return counter
 
 
-def spell_accumulator(initial_power: int) -> Callable[[int], int]:
+def spell_accumulator(
+    initial_power: int,
+) -> Callable[[int], int]:
     total = initial_power
 
-    def accumulator(add_power: int) -> int:
+    def accumulator(
+        add_power: int,
+    ) -> int:
         nonlocal total
         total += add_power
         return total
@@ -23,20 +27,40 @@ def spell_accumulator(initial_power: int) -> Callable[[int], int]:
     return accumulator
 
 
-def enchantment_factory(enchantment_type: str) -> Callable[[str], str]:
-    def enchant(item_name: str) -> str:
-        return f"{enchantment_type} {item_name}"
+def enchantment_factory(
+    enchantment_type: str,
+) -> Callable[[str], str]:
+    def enchant(
+        item_name: str,
+    ) -> str:
+        return (
+            f"{enchantment_type} "
+            f"{item_name}"
+        )
 
     return enchant
 
 
-def memory_vault() -> Dict[str, Callable[..., object]]:
-    store_dict: Dict[str, object] = {}
+def memory_vault(
+) -> Dict[str, Callable[..., object]]:
+    store_dict: Dict[
+        str,
+        object,
+    ] = {}
 
-    def store(key: str, value: object) -> None:
+    def store(
+        key: str,
+        value: object,
+    ) -> None:
         store_dict[key] = value
 
     def recall(key: str) -> object:
-        return store_dict.get(key, "Memory not found")
+        return store_dict.get(
+            key,
+            "Memory not found",
+        )
 
-    return {"store": store, "recall": recall}
+    return {
+        "store": store,
+        "recall": recall,
+    }
