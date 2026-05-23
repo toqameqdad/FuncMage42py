@@ -1,6 +1,19 @@
-def artifact_sorter(
-    artifacts: list[dict]
-) -> list[dict]:
+from typing import TypedDict, List
+
+
+class Artifact(TypedDict):
+    name: str
+    power: int
+    type: str
+
+
+class Mage(TypedDict):
+    name: str
+    power: int
+    element: str
+
+
+def artifact_sorter(artifacts: List[Artifact]) -> List[Artifact]:
     return sorted(
         artifacts,
         key=lambda artifact: artifact["power"],
@@ -8,10 +21,7 @@ def artifact_sorter(
     )
 
 
-def power_filter(
-    mages: list[dict],
-    min_power: int
-) -> list[dict]:
+def power_filter(mages: List[Mage], min_power: int) -> List[Mage]:
     return list(
         filter(
             lambda mage: mage["power"] >= min_power,
@@ -20,9 +30,7 @@ def power_filter(
     )
 
 
-def spell_transformer(
-    spells: list[str]
-) -> list[str]:
+def spell_transformer(spells: List[str]) -> List[str]:
     return list(
         map(
             lambda spell: f"* {spell} *",
@@ -31,28 +39,12 @@ def spell_transformer(
     )
 
 
-def mage_stats(
-    mages: list[dict]
-) -> dict:
+def mage_stats(mages: List[Mage]) -> dict[str, float]:
+    if not mages:
+        return {"max_power": 0.0, "min_power": 0.0, "avg_power": 0.0}
+    powers = [mage["power"] for mage in mages]
     return {
-        "max_power":
-            max(
-                mages,
-                key=lambda mage: mage["power"]
-            )["power"],
-
-        "min_power":
-            min(
-                mages,
-                key=lambda mage: mage["power"]
-            )["power"],
-
-        "avg_power":
-            round(
-                sum(
-                    mage["power"]
-                    for mage in mages
-                ) / len(mages),
-                2
-            )
+        "max_power": float(max(powers)),
+        "min_power": float(min(powers)),
+        "avg_power": round(sum(powers) / len(powers), 2)
     }
