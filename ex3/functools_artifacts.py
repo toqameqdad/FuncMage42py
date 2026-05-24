@@ -1,131 +1,68 @@
-from functools import (
-    lru_cache,
-    partial,
-    reduce,
-    singledispatch,
-)
-from operator import add, mul
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-)
+from functools import reduce, lru_cache
+from typing import Callable, List, Tuple, Optional
 
 
-def spell_reducer(
-    spells: List[int],
-    operation: str,
-) -> int:
-    if not spells:
-        return 0
-
-    ops: Dict[
-        str,
-        Callable[[int, int], int],
-    ] = {
-        "add": add,
-        "multiply": mul,
-        "max": max,
-        "min": min,
-    }
-
-    if operation not in ops:
-        raise ValueError(
-            f"Unknown operation "
-            f"{operation}"
-        )
-
-    if operation in (
-        "max",
-        "min",
-    ):
-        return reduce(
-            lambda a, b:
-            ops[operation](a, b),
-            spells,
-        )
-
-    return reduce(
-        ops[operation],
-        spells,
-    )
+SpellsFn = Callable[[List[int]], str]
 
 
-def partial_enchanter(
-    base_enchantment:
-    Callable[
-        [int, str, str],
-        str,
-    ],
-) -> Dict[
-    str,
-    Callable[[str], str],
-]:
-    return {
-        "fire": partial(
-            base_enchantment,
-            power=50,
-            element="fire",
-        ),
-        "ice": partial(
-            base_enchantment,
-            power=50,
-            element="ice",
-        ),
-        "lightning": partial(
-            base_enchantment,
-            power=50,
-            element="lightning",
-        ),
-    }
+def spell_reducer() -> Tuple[SpellsFn, SpellsFn, SpellsFn]:
+    def sum_spells(values: List[int]) -> str:
+        return f"Sum: {sum(values)}"
+
+    def product_spells(values: List[int]) -> str:
+        return f"Product: {reduce(lambda a, b: a * b, values)}"
+
+    def max_spell(values: List[int]) -> str:
+        return f"Max: {max(values)}"
+
+    return sum_spells, product_spells, max_spell
 
 
 @lru_cache(maxsize=None)
-def memoized_fibonacci(
-    n: int,
-) -> int:
-    if n == 0:
-        return 0
-
-    if n == 1:
-        return 1
-
-    return (
-        memoized_fibonacci(n - 1)
-        + memoized_fibonacci(n - 2)
-    )
+def fib(n: int) -> int:
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
 
 
 def spell_dispatcher(
-) -> Callable[[Any], str]:
-    @singledispatch
-    def dispatch(
-        spell: Any,
-    ) -> str:
-        return "Unknown spell type"
+    spell_type: str,
+    value: Optional[int] = None,
+) -> str:
+    if spell_type == "damage":
+        return f"Damage spell: {value} damage"
+    elif spell_type == "enchantment":
+        return "Enchantment: fireball"
+    elif spell_type == "multi":
+        return "Multi-cast: 3 spells"
+    return "Unknown spell type"
 
-    @dispatch.register
-    def _(spell: int) -> str:
-        return (
-            f"Damage spell: "
-            f"{spell} damage"
-        )
 
-    @dispatch.register
-    def _(spell: str) -> str:
-        return (
-            f"Enchantment: "
-            f"{spell}"
-        )
+def main() -> None:
+    print("Testing spell reducer...")
 
-    @dispatch.register
-    def _(
-        spell: list[Any],
-    ) -> str:
-        return (
-            f"Multi-cast: "
-            f"{len(spell)} spells"
-        )
+    sum_fn, product_fn, max_fn = spell_reducer()
 
-    return dispatch
+    values = [10, 20, 30, 40]
+
+    print(sum_fn(values))
+    print(product_fn(values))
+    print(max_fn(values))
+
+    print("Testing memoized fibonacci...")
+
+    print(f"Fib(0): {fib(0)}")
+    print(f"Fib(1): {fib(1)}")
+    print(f"Fib(10): {fib(10)}")
+    print(f"Fib(15): {fib(15)}")
+
+    print("Testing spell dispatcher...")
+
+    print(spell_dispatcher("damage", 42))
+    print(spell_dispatcher("enchantment"))
+    print(spell_dispatcher("multi"))
+    print(spell_dispatcher("unknown"))
+
+
+if __name__ == "__main__":
+    main()
