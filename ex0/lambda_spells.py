@@ -56,12 +56,24 @@ def mage_stats(
             "avg_power": 0.0,
         }
 
-    powers = [m["power"] for m in mages]
-
     return {
-        "max_power": float(max(powers)),
-        "min_power": float(min(powers)),
-        "avg_power": round(sum(powers) / len(powers), 2),
+        "max_power": float(
+            max(
+                mages,
+                key=lambda m: m["power"],
+            )["power"]
+        ),
+        "min_power": float(
+            min(
+                mages,
+                key=lambda m: m["power"],
+            )["power"]
+        ),
+        "avg_power": round(
+            sum(m["power"] for m in mages)
+            / len(mages),
+            2,
+        ),
     }
 
 

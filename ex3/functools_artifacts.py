@@ -1,67 +1,211 @@
-from functools import reduce, lru_cache
-from typing import Callable, List, Tuple, Optional
+from functools import (
+    lru_cache,
+    partial,
+    reduce,
+    singledispatch,
+)
+from operator import add, mul
+from typing import Any, Callable, Protocol, Sequence
 
 
-SpellsFn = Callable[[List[int]], str]
+class BaseEnchantment(Protocol):
+    def __call__(
+        self,
+        power: int,
+        element: str,
+        target: str,
+    ) -> str:
+        ...
 
 
-def spell_reducer() -> Tuple[SpellsFn, SpellsFn, SpellsFn]:
-    def sum_spells(values: List[int]) -> str:
-        return f"Sum: {sum(values)}"
+def spell_reducer(
+    spells: list[int],
+    operation: str,
+) -> str:
+    if not spells:
+        return "Sum: 0"
 
-    def product_spells(values: List[int]) -> str:
-        return f"Product: {reduce(lambda a, b: a * b, values)}"
+    if operation == "add":
+        return (
+            f"Sum: "
+            f"{reduce(add, spells)}"
+        )
 
-    def max_spell(values: List[int]) -> str:
-        return f"Max: {max(values)}"
+    if operation == "multiply":
+        return (
+            f"Product: "
+            f"{reduce(mul, spells)}"
+        )
 
-    return sum_spells, product_spells, max_spell
+    if operation == "max":
+        return (
+            f"Max: "
+            f"{max(spells)}"
+        )
+
+    raise ValueError(
+        f"Unknown operation "
+        f"{operation}"
+    )
+
+
+def partial_enchanter(
+    base_enchantment: BaseEnchantment,
+) -> dict[str, Callable[[str], str]]:
+    return {
+        "fire": partial(
+            base_enchantment,
+            50,
+            "fire",
+        ),
+        "ice": partial(
+            base_enchantment,
+            50,
+            "ice",
+        ),
+        "lightning": partial(
+            base_enchantment,
+            50,
+            "lightning",
+        ),
+    }
 
 
 @lru_cache(maxsize=None)
-def fib(n: int) -> int:
+def memoized_fibonacci(
+    n: int,
+) -> int:
     if n < 2:
         return n
-    return fib(n - 1) + fib(n - 2)
+
+    return (
+        memoized_fibonacci(n - 1)
+        + memoized_fibonacci(n - 2)
+    )
 
 
 def spell_dispatcher(
-    spell_type: str,
-    value: Optional[int] = None,
-) -> str:
-    if spell_type == "damage":
-        return f"Damage spell: {value} damage"
-    elif spell_type == "enchantment":
-        return "Enchantment: fireball"
-    elif spell_type == "multi":
-        return "Multi-cast: 3 spells"
-    return "Unknown spell type"
+) -> Callable[[Any], str]:
+
+    @singledispatch
+    def dispatch(
+        spell: Any,
+    ) -> str:
+        return "Unknown spell type"
+
+    @dispatch.register
+    def _(
+        spell: int,
+    ) -> str:
+        return (
+            f"Damage spell: "
+            f"{spell} damage"
+        )
+
+    @dispatch.register
+    def _(
+        spell: str,
+    ) -> str:
+        return (
+            f"Enchantment: "
+            f"{spell}"
+        )
+
+    @dispatch.register(list)
+    def _(
+        spell: Sequence[Any],
+    ) -> str:
+        return (
+            f"Multi-cast: "
+            f"{len(spell)} spells"
+        )
+
+    return dispatch
 
 
 def main() -> None:
-    print("Testing spell reducer...")
+    print(
+        "Testing spell reducer..."
+    )
 
-    sum_fn, product_fn, max_fn = spell_reducer()
+    values = [
+        10,
+        20,
+        30,
+        40,
+    ]
 
-    values = [10, 20, 30, 40]
+    print(
+        spell_reducer(
+            values,
+            "add",
+        )
+    )
 
-    print(sum_fn(values))
-    print(product_fn(values))
-    print(max_fn(values))
+    print(
+        spell_reducer(
+            values,
+            "multiply",
+        )
+    )
 
-    print("Testing memoized fibonacci...")
+    print(
+        spell_reducer(
+            values,
+            "max",
+        )
+    )
 
-    print(f"Fib(0): {fib(0)}")
-    print(f"Fib(1): {fib(1)}")
-    print(f"Fib(10): {fib(10)}")
-    print(f"Fib(15): {fib(15)}")
+    print(
+        "Testing memoized "
+        "fibonacci..."
+    )
 
-    print("Testing spell dispatcher...")
+    print(
+        f"Fib(0): "
+        f"{memoized_fibonacci(0)}"
+    )
 
-    print(spell_dispatcher("damage", 42))
-    print(spell_dispatcher("enchantment"))
-    print(spell_dispatcher("multi"))
-    print(spell_dispatcher("unknown"))
+    print(
+        f"Fib(1): "
+        f"{memoized_fibonacci(1)}"
+    )
+
+    print(
+        f"Fib(10): "
+        f"{memoized_fibonacci(10)}"
+    )
+
+    print(
+        f"Fib(15): "
+        f"{memoized_fibonacci(15)}"
+    )
+
+    print(
+        "Testing spell "
+        "dispatcher..."
+    )
+
+    dispatcher = (
+        spell_dispatcher()
+    )
+
+    print(dispatcher(42))
+    print(
+        dispatcher(
+            "fireball"
+        )
+    )
+    print(
+        dispatcher(
+            [1, 2, 3]
+        )
+    )
+    print(
+        dispatcher(
+            {"x": 1}
+        )
+    )
 
 
 if __name__ == "__main__":

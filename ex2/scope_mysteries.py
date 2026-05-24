@@ -1,27 +1,27 @@
-from typing import Dict
 from collections.abc import Callable
+from typing import Dict, Any
 
 
-def mage_counter() -> Callable[[], str]:
+def mage_counter() -> Callable[[], int]:
     count = 0
 
-    def counter() -> str:
+    def counter() -> int:
         nonlocal count
         count += 1
-        return f"counter_a call {count}: {count}"
+        return count
 
     return counter
 
 
 def spell_accumulator(
     initial_power: int,
-) -> Callable[[int], str]:
+) -> Callable[[int], int]:
     total = initial_power
 
-    def accumulator(add_power: int) -> str:
+    def accumulator(add_power: int) -> int:
         nonlocal total
         total += add_power
-        return f"Base {initial_power}, add {add_power}: {total}"
+        return total
 
     return accumulator
 
@@ -35,17 +35,16 @@ def enchantment_factory(
     return enchant
 
 
-def memory_vault() -> Dict[str, Callable[..., object]]:
-    store_dict: Dict[str, object] = {}
+def memory_vault() -> Dict[str, Callable[..., Any]]:
+    storage: dict[str, Any] = {}
 
-    def store(key: str, value: object) -> None:
-        store_dict[key] = value
-        print(f"Store ’{key}’ = {value}")
+    def store(key: str, value: Any) -> None:
+        storage[key] = value
 
     def recall(key: str) -> str:
-        if key in store_dict:
-            return f"Recall ’{key}’: {store_dict[key]}"
-        return "Recall ’unknown’: Memory not found"
+        if key in storage:
+            return str(storage[key])
+        return "Memory not found"
 
     return {
         "store": store,
@@ -53,22 +52,26 @@ def memory_vault() -> Dict[str, Callable[..., object]]:
     }
 
 
+# =========================
+# MAIN (for testing only)
+# =========================
+
 def main() -> None:
     print("Testing mage counter...")
 
     counter_a = mage_counter()
     counter_b = mage_counter()
 
-    print(counter_a())
-    print(counter_a())
-    print(counter_b())
+    print(f"counter_a call 1: {counter_a()}")
+    print(f"counter_a call 2: {counter_a()}")
+    print(f"counter_b call 1: {counter_b()}")
 
     print("\nTesting spell accumulator...")
 
     accumulator = spell_accumulator(100)
 
-    print(accumulator(20))
-    print(accumulator(30))
+    print(f"Base 100, add 20: {accumulator(20)}")
+    print(f"Base 100, add 30: {accumulator(30)}")
 
     print("\nTesting enchantment factory...")
 
@@ -84,8 +87,9 @@ def main() -> None:
 
     vault["store"]("secret", 42)
 
-    print(vault["recall"]("secret"))
-    print(vault["recall"]("unknown"))
+    print("Store 'secret' = 42")
+    print(f"Recall 'secret': {vault['recall']('secret')}")
+    print(f"Recall 'unknown': {vault['recall']('unknown')}")
 
 
 if __name__ == "__main__":
