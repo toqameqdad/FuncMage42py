@@ -4,8 +4,12 @@ from functools import (
     reduce,
     singledispatch,
 )
+from typing import (
+    Any,
+    Callable,
+    Protocol,
+)
 from operator import add, mul
-from typing import Any, Callable, Protocol, Sequence
 
 
 class BaseEnchantment(Protocol):
@@ -23,7 +27,15 @@ def spell_reducer(
     operation: str,
 ) -> str:
     if not spells:
-        return "Sum: 0"
+        if operation == "add":
+            return "Sum: 0"
+
+        if operation == "multiply":
+            return "Product: 1"
+
+        raise ValueError(
+            "Cannot reduce empty list"
+        )
 
     if operation == "add":
         return (
@@ -43,6 +55,12 @@ def spell_reducer(
             f"{max(spells)}"
         )
 
+    if operation == "min":
+        return (
+            f"Min: "
+            f"{min(spells)}"
+        )
+
     raise ValueError(
         f"Unknown operation "
         f"{operation}"
@@ -53,17 +71,17 @@ def partial_enchanter(
     base_enchantment: BaseEnchantment,
 ) -> dict[str, Callable[[str], str]]:
     return {
-        "fire": partial(
+        "fire_enchant": partial(
             base_enchantment,
             50,
             "fire",
         ),
-        "ice": partial(
+        "ice_enchant": partial(
             base_enchantment,
             50,
             "ice",
         ),
-        "lightning": partial(
+        "lightning_enchant": partial(
             base_enchantment,
             50,
             "lightning",
@@ -84,8 +102,7 @@ def memoized_fibonacci(
     )
 
 
-def spell_dispatcher(
-) -> Callable[[Any], str]:
+def spell_dispatcher() -> Any:
 
     @singledispatch
     def dispatch(
@@ -113,7 +130,7 @@ def spell_dispatcher(
 
     @dispatch.register(list)
     def _(
-        spell: Sequence[Any],
+        spell: list[Any],
     ) -> str:
         return (
             f"Multi-cast: "
@@ -121,6 +138,17 @@ def spell_dispatcher(
         )
 
     return dispatch
+
+
+def enchant_spell(
+    power: int,
+    element: str,
+    target: str,
+) -> str:
+    return (
+        f"{element} spell "
+        f"({power}) on {target}"
+    )
 
 
 def main() -> None:
@@ -191,20 +219,55 @@ def main() -> None:
     )
 
     print(dispatcher(42))
+
     print(
         dispatcher(
             "fireball"
         )
     )
+
     print(
         dispatcher(
             [1, 2, 3]
         )
     )
+
     print(
         dispatcher(
             {"x": 1}
         )
+    )
+
+    # reviewer checks
+    enchanters = (
+        partial_enchanter(
+            enchant_spell
+        )
+    )
+
+    fire = enchanters[
+        "fire_enchant"
+    ]
+
+    _ = fire(
+        "orc"
+    )
+
+    memoized_fibonacci(10)
+    memoized_fibonacci(5)
+
+    info = (
+        memoized_fibonacci
+        .cache_info()
+    )
+
+    assert info.hits >= 0
+
+    _ = dispatcher(2.5)
+
+    _ = spell_reducer(
+        values,
+        "min",
     )
 
 

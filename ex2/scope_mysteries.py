@@ -52,10 +52,6 @@ def memory_vault() -> Dict[str, Callable[..., Any]]:
     }
 
 
-# =========================
-# MAIN (for testing only)
-# =========================
-
 def main() -> None:
     print("Testing mage counter...")
 

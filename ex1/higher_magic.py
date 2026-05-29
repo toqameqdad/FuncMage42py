@@ -120,10 +120,8 @@ def main() -> None:
     )
 
     print(
-        mega_fireball(
-            "Dragon",
-            10,
-        )
+        "Amplified result: "
+        f"{mega_fireball('Dragon', 10)}"
     )
 
     print("\nTesting conditional caster...")
@@ -134,17 +132,13 @@ def main() -> None:
     )
 
     print(
-        conditional(
-            "Goblin",
-            70,
-        )
+        "Strong cast: "
+        f"{conditional('Goblin', 70)}"
     )
 
     print(
-        conditional(
-            "Goblin",
-            20,
-        )
+        "Weak cast: "
+        f"{conditional('Goblin', 20)}"
     )
 
     print("\nTesting spell sequence...")
@@ -154,10 +148,8 @@ def main() -> None:
     )
 
     print(
-        sequence(
-            "Knight",
-            40,
-        )
+        "Sequence result: "
+        f"{sequence('Knight', 40)}"
     )
 
 
